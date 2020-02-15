@@ -6,4 +6,4 @@ The culmination of this NLP extravaganza will be a versitile, tireless, endlessl
 > I was supposed to write a better summary for this document.
 > Things were going smoothly, but the problems started when I began to contemplate the most important ideas.
 > I wanted to do this, but I couldn't because I would have to spend hours writing down all the details. 
-- The Excuse Generator
+-- The Excuse Generator
