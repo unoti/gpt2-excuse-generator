@@ -1,1 +1,2 @@
 Flask==1.1.1
+transformers==2.4.1

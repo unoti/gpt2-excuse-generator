@@ -1,8 +1,12 @@
 import os
-
 from flask import Flask, request
 
+from excuses import ExcuseSituation
+from textgen import TextGenerator
+
 app = Flask(__name__)
+
+gen = TextGenerator()
 
 @app.route('/excuse')
 def hello_world():
@@ -11,7 +15,13 @@ def hello_world():
 
 @app.route('/excuse/gen')
 def excuse():
-    resp = {}
+    s = ExcuseSituation(gen, assignment="prepare a nice dinner for you for Valentine's day", tasks=[
+        'plan the menu',
+        'go to the grocery store to buy the ingredients',
+        'cook it up',
+        'plate the meal in an attractive way',
+    ])
+    resp = s.generate_excuses(count=3)
     return resp
 
 if __name__ == '__main__':
