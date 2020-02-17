@@ -18,12 +18,15 @@ def hello_world():
 
 @app.route('/excuse/gen')
 def excuse():
+    def show_word(w):
+        print('>', w)
+
     s = ExcuseSituation(gen, assignment="prepare a nice dinner for you for Valentine's day", tasks=[
         'plan the menu',
         'go to the grocery store to buy the ingredients',
         'cook it up',
         'plate the meal in an attractive way',
-    ])
+    ], word_callback=show_word)
     excuses = s.generate_excuses(count=3)
     result =  {
         'excuses' : excuses

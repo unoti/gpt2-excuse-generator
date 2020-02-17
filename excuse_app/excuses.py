@@ -1,24 +1,28 @@
 import random
 
-class BlameModeMe:
-    my = 'my'
-    i = 'I'
-    me = 'me'
+BlameModeMe = {
+    '[my]': 'my',
+    '[I]': 'I',
+    '[me]': 'me'
+}
 
-class BlameModeYou:
-    my = 'your'
-    i = 'you'
-    me = 'you'
+BlameModeYou = {
+    '[my]': 'your',
+    '[I]': 'you',
+    '[me]': 'you'
+}
 
-class BlameModeTeam:
-    my = 'our'
-    i = 'we'
-    me = 'us'
+BlameModeTeam = {
+    '[my]': 'our',
+    '[I]': 'we',
+    '[me]': 'us'
+}
 
-class BlameModeTeamBlameShift:
-    my = 'their'
-    i = 'they'
-    me = 'them'
+BlameModeTeamBlameShift = {
+    '[my]': 'their',
+    '[I]': 'they',
+    '[me]': 'them'
+}
 
 INTRO_TEXT = [
     '[my] assignment was to',
@@ -31,7 +35,7 @@ INTRO_TEXT = [
 
 HOWEVER_TEXT = [
     "Sadly, that didn't work out because",
-    "Unfortunately, there was a serious problem with that",
+    "Unfortunately, the problem with that was",
     "[I] couldn't do that because",
 ]
 
@@ -63,7 +67,10 @@ EMOTION_TURNAROUND = [
 ]
 
 class ExcuseSituation:
-    def __init__(self, text_generator, assignment, tasks=[], is_team=False, blame_others=False):
+    def __init__(self, text_generator, assignment, tasks=[], is_team=False, blame_others=False, word_callback=None):
+        self.excuses = [] # List of excuses we'll build up.
+        self.excuse = None # The current excuse we're working on.
+        self.word_callback = word_callback
         self.assignment = assignment
         self.tasks = tasks
         self.generator = text_generator
@@ -77,51 +84,71 @@ class ExcuseSituation:
                 mode = BlameModeYou
             else:
                 mode = BlameModeMe
-        self.mode = mode
+        self.blame_mode = mode
+    
+    def _out_start_excuse(self):
+        """Start the output of a new excuse."""
+        self.excuse = ''
+
+    def _out_end_excuse(self):
+        """Finish the output of an excuse."""
+        self.excuses.append(self.excuse)
+
+    def _out_add(self, text):
+        """Add one or more words onto the end of the current excuse."""
+        if self.excuse.endswith('.') and text[0] != ' ':
+            text = ' ' + text
+        text = self._substitute_pronouns(text)
+        # If we're starting a new sentence then capitalize.
+        if self.excuse == '' or self.excuse.endswith('.'):
+            text = text[0].upper() + text[1:]
+        if self.word_callback:
+            self.word_callback(text)
+        self.excuse += text
+    
+    def _out_choice(self, choices, end_sentence=False):
+        """Add one of a random selection of choices to the current excuse."""
+        choice = random.choice(choices)
+        if end_sentence:
+            choice += '.'
+        else:
+            choice += ' '
+        self._out_add(choice)
     
     def generate_excuse(self):
+        self._out_start_excuse()
         if random.random() < 0.5 or not self.tasks:
-            text = self.generate_excuse_whole()
+            self.generate_excuse_whole()
         else:
-            text = self.generate_excuse_task()
+            self.generate_excuse_task()
         if random.random() < 0.5:
-            text += random.choice(EMOTION_TURNAROUND)
-            more = self.generator.generate_sentence(text)
-            text = self._list_to_text([text, more])
-        return text
+            self._out_add(random.choice(EMOTION_TURNAROUND))
+            self.generator.generate_sentence(self.excuse, on_word_generated=self._out_add)
+        self._out_end_excuse()
+        return self.excuse
         
     def generate_excuse_task(self):
-        background = [random.choice(INTRO_TEXT), self.assignment, '.']
-        background += [random.choice(TASK_INTRO), random.choice(self.tasks), '.']
-        background += [random.choice(TASK_TRANSITION)]
-        background_text = self._list_to_text(background)
-        text = self.generator.generate_sentence(background_text, up_to_count=3)
-        return self._prep_result(background_text + text)
+        self._out_choice(INTRO_TEXT)
+        self._out_add(self.assignment + '.')
+        self._out_choice(TASK_INTRO)
+        self._out_choice(self.tasks, end_sentence=True)
+        self._out_choice(TASK_TRANSITION)
+        self.generator.generate_sentence(self.excuse, up_to_count=3, on_word_generated=self._out_add)
+        return self.excuse
         
     def generate_excuse_whole(self):
-        # Lead-in text, setting up the situation.
-        background = [random.choice(INTRO_TEXT), self.assignment, '.']
-        background += [random.choice(HOWEVER_TEXT)]
-        
-        background_text = self._list_to_text(background)
-        text = self.generator.generate_sentence(background_text)
-        return self._prep_result(background_text + text)
+        self._out_choice(INTRO_TEXT)
+        self._out_add(self.assignment + '.')
+        self._out_choice(HOWEVER_TEXT)
+        self.generator.generate_sentence(self.excuse, on_word_generated=self._out_add)
 
     def generate_excuses(self, count=5):
-        result = []
         for _ in range(count):
-            result.append(self.generate_excuse())
-        return result
-            
-    def _list_to_text(self, chunk_list):
-        words = []
-        for entry in chunk_list:
-            entry = entry.replace('[I]', self.mode.i)
-            entry = entry.replace('[my]', self.mode.my)
-            entry = entry.replace('[me]', self.mode.me)
-            words.append(entry)
-        return ' '.join(words)
+            self.generate_excuse()
+        return self.excuses
     
-    def _prep_result(self, excuse_text):
-        return excuse_text[0].upper() + excuse_text[1:] # Capitalize sentence
+    def _substitute_pronouns(self, text):
+        for pronoun_from, pronoun_to in self.blame_mode.items():
+            text = text.replace(pronoun_from, pronoun_to)
+        return text
         

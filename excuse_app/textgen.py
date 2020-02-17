@@ -52,7 +52,13 @@ class TextGenerator:
         generated_word = self.tokenizer.decode(next_token)
         return generated_word
     
-    def generate_sentence(self, start_text, sentence_count=1, up_to_count = None):
+    def generate_sentence(self, start_text, sentence_count=1, up_to_count = None, on_word_generated=None):
+        """
+        @param start_text The text generated will continue from this starting text.
+        @param sentence_count The exact number of sentences to generate. Alternatively, you can use up_to_count.
+        @param up_to_count If up_to_count is specified then between 1 and up_to_count sentences will be generated.
+        @param on_word_generated An optional callback function that will be called for each word generated.
+        """
         if up_to_count:
             sentence_count = random.randint(1, up_to_count)
         text = start_text
@@ -65,6 +71,8 @@ class TextGenerator:
                 if 'endoftext' in word:
                     reached_end = True
                     break
+                if on_word_generated:
+                    on_word_generated(word)                    
                 text += word
                 sentence += word
                 if '.' in word:
