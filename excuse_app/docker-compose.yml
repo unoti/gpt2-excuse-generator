@@ -1,0 +1,26 @@
+# In this configuration we import the application code in a volume so it can re-execute on code change
+# without rebuilding the application container.
+version: '3'
+
+services:
+    app:
+        container_name: excuse-app
+        image: excuse-app
+        restart: always
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: 'python ./app.py'
+        ports:
+            - '5000:5000'
+        volumes:
+            - app-content:/app
+
+volumes:
+    app-content:
+        driver: local
+        driver_opts:
+            type: none
+            # Special path for mounting from Windows directory d:\code\ai\
+            device: '/host_mnt/d/code/ai/gpt2-excuse-generator/excuse_app'
+            o: bind
