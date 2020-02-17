@@ -1,3 +1,4 @@
+# Development configuration:
 # In this configuration we import the application code in a volume so it can re-execute on code change
 # without rebuilding the application container.
 version: '3'
@@ -10,17 +11,24 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+        #environment:
+        #    FLASK_APP: app.py
+        #    FLASK_ENV: development
+        #command: 'flask run --host 0.0.0.0'
         command: 'python ./app.py'
         ports:
             - '5000:5000'
         volumes:
-            - app-content:/app
+            - D:\code\ai\gpt2-excuse-generator/excuse_app:/app
+            #- app-content:/app
 
-volumes:
-    app-content:
-        driver: local
-        driver_opts:
-            type: none
-            # Special path for mounting from Windows directory d:\code\ai\
-            device: '/host_mnt/d/code/ai/gpt2-excuse-generator/excuse_app'
-            o: bind
+    
+#volumes:
+#    app-content:
+#        driver: local
+#        driver_opts:
+#            type: none
+#            # Special path for mounting from Windows directory d:\code\ai\
+#            #TODO: Try doing this with '.'
+#            device: '/host_mnt/d/code/ai/gpt2-excuse-generator/excuse_app'
+#            o: bind

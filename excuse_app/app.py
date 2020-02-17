@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/excuse')
 def hello_world():
-    resp = {'What': 'Excuse Generator', 'output': 'something'}
+    resp = {'What': 'Excuse Generator', 'output': 'something12'}
     return resp
 
 @app.route('/excuse/gen')
