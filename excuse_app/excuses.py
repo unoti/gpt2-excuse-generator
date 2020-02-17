@@ -1,3 +1,5 @@
+import random
+
 class BlameModeMe:
     my = 'my'
     i = 'I'

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 class TextGenerator:
-    def __init__(self, model_name='gpt2', temperature = 0.8):
+    def __init__(self, model_name='gpt2', temperature = 0.8, use_gpu=False):
         """
         Model names come from the keys in GPT2_PRETRAINED_CONFIG_ARCHIVE_MAP.
             "gpt2"
@@ -13,6 +13,7 @@ class TextGenerator:
             "gpt2-xl"
             "distilgpt2"
         """
+        self.use_gpu = use_gpu
         # Load pre-trained model tokenizer (vocabulary)
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         # Load pre-trained model (weights)
@@ -24,7 +25,8 @@ class TextGenerator:
         # This is IMPORTANT to have reproducible results during evaluation!
         self.model.eval()
         # If you have a GPU, put everything on cuda
-        self.model.to('cuda')
+        if self.use_gpu:
+            self.model.to('cuda')
     
     def generate_word(self, start_text):
         """
@@ -36,7 +38,8 @@ class TextGenerator:
         # Convert indexed tokens in a PyTorch tensor
         tokens_tensor = torch.tensor([indexed_tokens])
         # Move the tokens to the GPU.
-        tokens_tensor = tokens_tensor.to('cuda')
+        if self.use_gpu:
+            tokens_tensor = tokens_tensor.to('cuda')
         
         # Predict all tokens
         with torch.no_grad():
