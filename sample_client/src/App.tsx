@@ -1,29 +1,11 @@
 import React from 'react';
 import { Stack, Text, FontWeights } from 'office-ui-fabric-react';
 
-import { ExcuseScenario } from './models';
-import ShrugImage from './images/tanya.png';
 import './App.css';
-import { ExcuseInput } from './components/ExcuseInput';
+import ShrugImage from './images/tanya.png';
+import { Generation } from './components';
 
 const boldStyle = { root: { fontWeight: FontWeights.semibold } };
-
-const startScenario: ExcuseScenario = {
-  assignment: 'take the trash out and clean the kitchen',
-  tasks: [
-    'assess the current trash levels',
-    'gather up the loose overflow trash items',
-    'remove the bag from the can',
-    'tie the bag',
-    'take it to the outside bin',
-    'put a new bag into the can'
-  ]
-};
-
-function onGenerate(scenario: ExcuseScenario) {
-  console.log('Generate');
-  console.log(scenario);
-}
 
 export const App: React.FunctionComponent = () => {
   return (
@@ -50,12 +32,7 @@ export const App: React.FunctionComponent = () => {
           <a href="https://creativecommons.org/licenses/cc0/1.0/?ref=ccsearch&atype=html">CC 1.0</a>
         </div>
       </Stack>
-      <Stack>
-        <ExcuseInput scenario={startScenario} onSubmit={onGenerate}/>
-      </Stack>
+      <Generation />
     </Stack>
   );
 };
-
-// Creative commons image:
-//<img className="cc-icon" src="https://search.creativecommons.org/static/img/cc_icon.svg" />
