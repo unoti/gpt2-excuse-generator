@@ -18,6 +18,7 @@ services:
         command: 'python ./app.py'
         ports:
             - '5000:5000'
+            - '5001:5001'         
         volumes:
             - D:\code\ai\gpt2-excuse-generator/excuse_app:/app
             #- app-content:/app
